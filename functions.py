@@ -1,3 +1,5 @@
+import re
+
 from flask_restx import abort
 from typing import Iterator, List, Any
 
@@ -28,4 +30,7 @@ def make_query(cnd: str, val: str, file_list: Iterator) ->List[Any]:
             return res
         except:
             return abort(400)
+    if cnd == "regex":
+        regex = re.compile()
+        res = list(filter(lambda x: regex.search(x),file_list))
     return []
