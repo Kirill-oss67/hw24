@@ -4,7 +4,7 @@ from flask_restx import abort
 from typing import Iterator, List, Any
 
 
-def make_query(cnd: str, val: str, file_list: Iterator) ->List[Any]:
+def make_query(cnd: str, val: str, file_list: Iterator) -> List[Any]:
     try:
         if cnd == "filter":
             res = list(filter(lambda x: val in x, file_list))
@@ -31,6 +31,7 @@ def make_query(cnd: str, val: str, file_list: Iterator) ->List[Any]:
         except:
             return abort(400)
     if cnd == "regex":
-        regex = re.compile()
-        res = list(filter(lambda x: regex.search(x),file_list))
+        regex = re.compile(val)
+        res = list(filter(lambda x: regex.search(x), file_list))
+        return res
     return []

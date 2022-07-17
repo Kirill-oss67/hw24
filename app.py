@@ -1,9 +1,7 @@
 import os
-import mypy
+from functions import make_query
 from flask import Flask, request, Response
 from flask_restx import abort
-
-from functions import make_query
 
 app = Flask(__name__)
 
@@ -11,11 +9,12 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 
 
-@app.post("/perform_query")
+@app.route("/perform_query", methods=["POST", "GET"])
 def perform_query() -> Response:
-    # нужно взять код из предыдущего ДЗ
-    # добавить команду regex
-    # добавить типизацию в проект, чтобы проходила утилиту mypy app.py
+    # получить параметры query и file_name из request.args, при ошибке вернуть ошибку 400
+    # проверить, что файла file_name существует в папке DATA_DIR, при ошибке вернуть ошибку 400
+    # с помощью функционального программирования (функций filter, map), итераторов/генераторов сконструировать запрос
+    # вернуть пользователю сформированный результат
     cnd_1 = request.args.get('cnd_1')
     val_1 = request.args.get('val_1')
     cnd_2 = request.args.get('cnd_2')
@@ -26,11 +25,16 @@ def perform_query() -> Response:
     file_path = os.path.join(DATA_DIR, str(file_name))
     if not os.path.exists(file_path):
         return abort(400)
-    if cnd_1 not in ["filter", "map", "unique", 'sort', "limit"]:
+    if cnd_1 not in ["filter", "map", "unique", 'sort', "limit", "regex"]:
         return abort(400)
     with open(file_path) as file:
         res = make_query(cnd_1, str(val_1), file)
-        if cnd_2 and cnd_2 not in ["filter", "map", "unique", 'sort', "limit"]:
-            return abort(400)
-        res = make_query(str(cnd_2), str(val_2), iter(res))
+        if cnd_2:
+            if cnd_2 not in ["filter", "map", "unique", 'sort', "limit", "regex"]:
+                return abort(400)
+            res = make_query(str(cnd_2), str(val_2), iter(res))
     return app.response_class("\n".join(res), content_type="text/plain")
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
